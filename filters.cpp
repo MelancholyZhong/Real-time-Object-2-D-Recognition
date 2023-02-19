@@ -1,7 +1,11 @@
 #include <iostream>
 #include <cmath>
+#include <filesystem>
+
 #include <opencv2/opencv.hpp>
+
 #include "filters.h"
+#include "csv_util.h"
 
 //the blur function inherited from project1
 int blur5x5( cv::Mat &src, cv::Mat &dst ){
@@ -50,11 +54,12 @@ int blur5x5( cv::Mat &src, cv::Mat &dst ){
 }
 
 int thresholding( cv::Mat &src, cv::Mat &dst, int threshold){
-    //blur5x5(src, src);
+    cv::Mat blured;
+    blur5x5(src, blured);
     cv::Mat intermediate =  cv::Mat::zeros(src.size(), CV_8U);
     for(int i=0; i<src.rows; i++){
         uchar *irptr = intermediate.ptr<uchar>(i);
-        cv::Vec3b *srptr = src.ptr<cv::Vec3b>(i);
+        cv::Vec3b *srptr = blured.ptr<cv::Vec3b>(i);
         for(int j=0; j<src.cols; j++){
             if(srptr[j][0]+srptr[j][1]+srptr[j][2] > threshold*3){
                 irptr[j] = 0;
@@ -71,7 +76,47 @@ int closing(cv::Mat &src, cv::Mat &dst){
     int size = 1;
     cv::Mat element = getStructuringElement(cv::MORPH_RECT, cv::Size( 2*size + 1, 2*size+1 ), cv::Point( size, size ) );
     cv::dilate(src, dst,element);
+    cv::dilate(dst, dst,element);
     cv::erode(dst, dst, element);
+    cv::erode(dst, dst, element);
+    return 0;
+}
+
+static void on_trackbar( int threshold_slider, void* userData){
+    cv::Mat frame = *(static_cast<cv::Mat*>(userData));
+    cv::Mat res1;
+    thresholding(frame, res1, threshold_slider);
+    imshow( "Adjust Threshold", res1);
+}
+
+int adjustThreshold(cv::Mat &frame, int threshold){
+
+    cv::namedWindow("Adjust Threshold", 1); // identifies a window
+    //threshold settings(with trackbar)
+    const int threshold_slider_max = 255;
+    int threshold_slider = threshold; //default value of threshold is 150
+    char TrackbarName[50];
+    std::snprintf( TrackbarName, sizeof(TrackbarName), "Threshold:");
+    cv::createTrackbar( TrackbarName, "Adjust Threshold", &threshold_slider, threshold_slider_max, on_trackbar, &frame);
+    on_trackbar(threshold_slider, &frame);
+    char key = cv::waitKey(0);
+    while(key != 's'){
+        key = cv::waitKey(0);
+    }
+    cv::destroyWindow("Adjust Threshold");
+    return threshold_slider;
+}
+
+int saveNewObject(cv::Mat &frame, cv::Mat &res, std::vector<float> &feature, char* dirName){
+    //image saving settings
+    std::__fs::filesystem::create_directory("./dbImages");
+
+    char label[256];
+    std::cout << "intput a label for this object:" << std::endl;
+    std::cin >> label;
+
+    append_image_data_csv( dirName , label, feature);
+
     return 0;
 }
 
