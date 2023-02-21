@@ -7,7 +7,7 @@ PRODUCTS = vidDisplay
 OPENCV = `pkg-config opencv4 --cflags --libs`
 LIBS = $(OPENCV)
 
-vidDisplay : vidDisplay.cpp filters.cpp csv_util.cpp
+vidDisplay : vidDisplay.cpp filters.cpp csv_util.cpp match.cpp
 	$(CC) $(CFLAGS) $(CAM_PLIST_FLAG) -o $@ $^ $(LIBS) 
 
 .PHONY: clean

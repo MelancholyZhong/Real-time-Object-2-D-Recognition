@@ -1,11 +1,15 @@
 #include <iostream>
 #include <string>
 #include <filesystem>
+#include<vector>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui.hpp>
 
 #include "filters.h"
+#include "match.h"
+#include "csv_util.h"
+
 
 
 int main(int argc, char *argv[]) {
@@ -27,14 +31,20 @@ int main(int argc, char *argv[]) {
         cv::Mat frame;
         
         //image saving settings
+        char dirName[256] = "database.csv";
         std::__fs::filesystem::create_directory("./captured");
         int captured = 0;
 
         //mode settings
-        int mode = 0; //0 for recognition mode and 1
+        int mode = 0; //0 for only threshold and cleaning mode and 1 for recognition
 
         //initial threshold
         int threshold = 150;
+
+        //load the database(will re-load if any change)
+        std::vector<char *> labels;
+        std::vector<std::vector<float>> data;
+
         
         for(;;) {
                 *capdev >> frame; // get a new frame from the camera, treat as a stream
@@ -45,12 +55,20 @@ int main(int argc, char *argv[]) {
 
                 cv::Mat res1;
                 cv::Mat res2;
-                if(mode == 0){
-                        cv::imshow("Video", frame);
-                }else{
-                        thresholding(frame, res1, threshold);
-                        closing(res1, res2);
-                        cv::imshow("Video", res2);
+                thresholding(frame, res1, threshold);
+                closing(res1, res2);
+                cv::imshow("Video", res2);
+                if(mode == 1){
+                        if(labels.size()==0){
+                                read_image_data_csv( dirName, labels, data );
+                        }
+                        std::vector<float> feature;
+                        feature.push_back(0.8);
+                        feature.push_back(0.7);
+                        char label[256];
+                        nearest3(labels, data, feature, label);
+                        std::cout<< label <<std::endl;
+                        cv::waitKey(1000); //dont want too much 
                 }
                 
                 // see if there is a waiting keystroke
@@ -77,9 +95,10 @@ int main(int argc, char *argv[]) {
                         std::vector<float> feature;
                         feature.push_back(0.9);
                         feature.push_back(0.9);
-
-                        char dirName[256] = "database.csv";
                         saveNewObject(frame, res2, feature, dirName);
+                        labels.clear();
+                        data.clear();
+                        read_image_data_csv( dirName, labels, data );
                 }
         }
 
