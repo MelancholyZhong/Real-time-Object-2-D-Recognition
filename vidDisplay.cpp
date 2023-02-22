@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
                         char label[256];
                         nearest3(labels, data, feature, label);
                         std::cout<< label <<std::endl;
-                        cv::waitKey(1000); //dont want too much 
+                        //cv::waitKey(1000); //dont want too much 
                 }
                 
                 // see if there is a waiting keystroke
