@@ -7,8 +7,13 @@
 
 // basic
 #include <map>
+#include <math.h> // atan2
+#include <queue>  // min heap
 #include <vector>
 // opencv
+#include <opencv2/core/types.hpp> // Rect Moment
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 
 using namespace std;
@@ -54,7 +59,7 @@ public:
   }
 
   // Merge two sets
-  void union(int x, int y) {
+  void merge(int x, int y) {
     int i = find(x);
     int j = find(y);
     if (i == j)
@@ -82,7 +87,7 @@ public:
 // Segment the image into regions and return the locations of each region
 vector<vector<int>> segmentation(Mat &src, int N) {
   Mat_<char> srcVec = src;
-  UnionFind UF = new UnionFind(src.rows * src.cols);
+  UnionFind UF(src.rows * src.cols);
 
   // Segment the image into regions
   int rows = src.rows;
@@ -91,10 +96,10 @@ vector<vector<int>> segmentation(Mat &src, int N) {
     for (c = 0; c < src.cols; c++) {
       // 4-connected
       if (r - 1 > 0 && (srcVec(r, c) * srcVec(r - 1, c) > 1)) {
-        UF.union(r * row + c, (r - 1) * row + c); // upper point
+        UF.merge(r * rows + c, (r - 1) * rows + c); // upper point
       }
       if (c - 1 > 0 && (srcVec(r, c) * srcVec(r, c - 1) > 1)) {
-        UF.union(r * row + c, r * row + c - 1); // left point
+        UF.merge(r * rows + c, r * rows + c - 1); // left point
       }
     }
   }
@@ -108,7 +113,8 @@ vector<vector<int>> segmentation(Mat &src, int N) {
         continue; // exclude the background point
       }
       root = UF.find(r * rows + c);
-      if (auto search = area.find(2); search != area.end()) {
+      auto search = area.find(root);
+      if (search != area.end()) {
         // update the area, position
         area[root] = area[root] + 1;
         position[root][0] = std::min(position[root][0], r); // lowerest
@@ -124,7 +130,7 @@ vector<vector<int>> segmentation(Mat &src, int N) {
   }
 
   // Find the first N largest regions
-  priority_queue<string, vector<string>, Comparator> minHeap;
+  priority_queue<int, vector<int>, Comparator> minHeap;
   for (auto region : area) {
     if (region.second > 10) { // exclude spot
       // Add new item to min-Heap
@@ -146,9 +152,27 @@ vector<vector<int>> segmentation(Mat &src, int N) {
   return result;
 }
 
-// Compute features for each major region
-int getFeatureVec(Mat &src, vector<float> &feature, vector<int> region, char method) {
-    
+// Compute features for one region
+float getFeatureVec(Mat &src, vector<double> &feature, vector<int> region, char method) {
+  // Extract the region
+  Mat crop = src(Range(region[1], region[3]), Range(region[0], region[2]));
+
+  // Compute moments of the region
+  Moments momentValue = moments(crop);
+  double hu[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+  HuMoments(momentValue, hu);
+
+  // Log scale hu moments to male its value bigger
+  for (int i = 0; i < 7; i++) {
+    hu[i] = -1 * copysign(1.0, hu[i]) * log10(abs(hu[i]));
+  }
+
+  feature = {};
+  for (int i = 0; i < 6; i++) {
+    feature.push_back(hu[i]);
+  }
+
+  return feature[0]; // return the first value to display
 }
 
 // Save training data into (image) folder and (feature) CSV files

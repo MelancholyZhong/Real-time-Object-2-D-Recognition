@@ -8,8 +8,8 @@
 #ifndef FETCH_FEATURES
 #define FETCH_FEATURES
 
-#include <vector>
 #include <opencv2/opencv.hpp>
+#include <vector>
 
 using namespace std;
 using namespace cv;
@@ -24,10 +24,9 @@ using namespace cv;
 vector<vector<int>> segmentation(Mat &src, int N);
 
 // Compute features for each major region
-int getFeatureVec(Mat &src, vector<float> &feature, vector<int> region, char method);
+float getFeatureVec(Mat &src, vector<double> &feature, vector<int> region, char method);
 
 // Save training data into (image) folder and (feature) CSV files
-int saveData(Mat &src, vector<float> &feature, char* name);
-
+int saveData(Mat &src, vector<float> &feature, char *name);
 
 #endif
