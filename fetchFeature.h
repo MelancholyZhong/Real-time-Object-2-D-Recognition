@@ -21,10 +21,10 @@ using namespace cv;
 // int cleanup(Mat &src, Mat &des);
 
 // Segment the image into regions and return the locations of each region
-vector<vector<int>> segmentation(Mat &src, int N);
+int regionSegment(Mat &src, vector<vector<int>> &regions, int N=1);
 
 // Compute features for each major region
-float getFeatureVec(Mat &src, vector<double> &feature, vector<int> region, char method);
+float getFeatureVec(Mat &src, vector<float> &feature, vector<int> region, char method);
 
 // Save training data into (image) folder and (feature) CSV files
 int saveData(Mat &src, vector<float> &feature, char *name);

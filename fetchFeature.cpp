@@ -85,7 +85,8 @@ public:
 };
 
 // Segment the image into regions and return the locations of each region
-vector<vector<int>> segmentation(Mat &src, int N) {
+int regionSegment(Mat &src, vector<vector<int>> &regions, int N) {
+  area = {};
   Mat_<char> srcVec = src;
   UnionFind UF(src.rows * src.cols);
 
@@ -103,7 +104,7 @@ vector<vector<int>> segmentation(Mat &src, int N) {
       }
     }
   }
-
+  
   // Record basic information of each region (area, position)
   map<int, vector<int>> position;
   int root;
@@ -143,19 +144,20 @@ vector<vector<int>> segmentation(Mat &src, int N) {
 
   // Add the positions of first N largest regions to res vector
   // If the regions that meet our requirement are less than N, we only return the qualified regions
-  vector<vector<int>> result = {};
   while (!minHeap.empty()) {
-    result.push_back(position[minHeap.top()]);
+    int top = minHeap.top();
+    regions.push_back(position[top]); // regions are sorted in increasing order of area
     minHeap.pop();
   }
 
-  return result;
+
+  return 0;
 }
 
 // Compute features for one region
-float getFeatureVec(Mat &src, vector<double> &feature, vector<int> region, char method) {
+float getFeatureVec(Mat &src, vector<float> &feature, vector<int> region, char method) {
   // Extract the region
-  Mat crop = src(Range(region[1], region[3]), Range(region[0], region[2]));
+  Mat crop = src(Range(region[0], region[2]), Range(region[1], region[3]));
 
   // Compute moments of the region
   Moments momentValue = moments(crop);
@@ -169,7 +171,7 @@ float getFeatureVec(Mat &src, vector<double> &feature, vector<int> region, char 
 
   feature = {};
   for (int i = 0; i < 6; i++) {
-    feature.push_back(hu[i]);
+    feature.push_back(float(hu[i]));
   }
 
   return feature[0]; // return the first value to display

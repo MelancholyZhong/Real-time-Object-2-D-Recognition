@@ -51,7 +51,7 @@ int nearest3(std::vector<char *> &labels, std::vector<std::vector<float>> &data,
     float minDis = -1;
     //https://stackoverflow.com/questions/26281979/c-loop-through-map
     for(auto const& x: map){
-        std::cout<<x.first<<std::endl;
+        // std::cout<<x.first<<std::endl;
         std::vector<float> distances = x.second;
         if(distances.size()<3){
             continue;
