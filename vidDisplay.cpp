@@ -66,12 +66,12 @@ int main(int argc, char *argv[]) {
                 char text[256] = {};
                 sprintf(text, "%s - %.6f", label, moment);
                 // cout << "text: " << text <<endl;
-                displayLabel(frame, regions[i], text);
+                displayLabel(res2, regions[i], text);
             }
             
             // cv::waitKey(1000); //dont want too much
         }
-        cv::imshow("test", frame);
+        cv::imshow("Video", res2);
 
         // see if there is a waiting keystroke
         char key = cv::pollKey();
