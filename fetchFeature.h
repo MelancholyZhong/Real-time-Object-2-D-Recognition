@@ -29,4 +29,16 @@ float getFeatureVec(Mat &src, vector<float> &feature, vector<int> region, char m
 // Save training data into (image) folder and (feature) CSV files
 int saveData(Mat &src, vector<float> &feature, char *name);
 
+// scaled Euclidean distance matching
+
+
+// K-Nearest Neighbor matching
+
+
+// Build confusion matrix
+
+
+// Display the label of one region 
+int displayLabel(Mat &src, vector<int> region, char* label, bool isWhite = false);
+
 #endif

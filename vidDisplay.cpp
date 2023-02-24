@@ -65,7 +65,6 @@ int main(int argc, char *argv[]) {
 
                 char text[256] = {};
                 sprintf(text, "%s - %.6f", label, moment);
-                // cout << "text: " << text <<endl;
                 displayLabel(res2, regions[i], text, true);
             }
             
