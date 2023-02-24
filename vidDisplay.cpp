@@ -8,7 +8,6 @@
 
 #include "csv_util.h"
 #include "fetchFeature.h"
-#include "classify.h"
 #include "filters.h"
 #include "match.h"
 
@@ -59,7 +58,7 @@ int main(int argc, char *argv[]) {
                 // cout << "(" << regions[i][0] << "," << regions[i][1] << "," << regions[i][2] << "," << regions[i][3] << ")" << endl;
 
                 std::vector<float> feature;
-                float moment = getFeatureVec(res2, feature, regions[i], 'c');
+                float moment = getFeatureVec(res2, feature, regions[i]);
                 char label[256] = {};
                 nearest3(labels, data, feature, label);
 
@@ -94,7 +93,7 @@ int main(int argc, char *argv[]) {
         } else if (key == 't') {
             std::vector<float> feature;
             vector<int> region = {0, 0, res2.rows, res2.cols};
-            getFeatureVec(res2, feature, region, 'c');
+            getFeatureVec(res2, feature, region);
             saveNewObject(frame, res2, feature, dirName);
             labels.clear();
             data.clear();

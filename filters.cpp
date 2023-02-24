@@ -56,7 +56,7 @@ int blur5x5( cv::Mat &src, cv::Mat &dst ){
 int thresholding( cv::Mat &src, cv::Mat &dst, int threshold){
     cv::Mat blured;
     blur5x5(src, blured);
-    cv::Mat intermediate =  cv::Mat::zeros(src.size(), CV_8U);
+    cv::Mat intermediate =  cv::Mat::zeros(src.size(), CV_8UC1);
     for(int i=0; i<src.rows; i++){
         uchar *irptr = intermediate.ptr<uchar>(i);
         cv::Vec3b *srptr = blured.ptr<cv::Vec3b>(i);

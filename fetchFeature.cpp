@@ -8,7 +8,7 @@
 // basic
 #include <map>
 #include <math.h> // atan2
-#include <queue>  // min heap
+#include <queue> // min heap
 #include <string>
 #include <vector>
 // opencv
@@ -110,7 +110,7 @@ uchar getMean(Mat_<uchar> &srcVec, int r, int c, int blockSize) {
 }
 
 // Applies an adaptive threshold to an image and return corresponding binary image
-int threshold(Mat &src, Mat &dst){
+int threshold(Mat &src, Mat &dst) {
     dst = Mat::zeros(src.rows, src.cols, CV_8UC1);
     Mat_<uchar> dstVec = dst;
     Mat greyImg, blurredImg;
@@ -208,44 +208,45 @@ class Comparator {
 int regionSegment(Mat &src, vector<vector<int>> &regions, int N) {
     area = {};
     Mat_<uchar> srcVec = src;
-    UnionFind UF(src.rows * src.cols);
+    UnionFind UF = UnionFind(src.cols * src.cols);
 
     // Segment the image into regions
-    int rows = src.rows;
+    int cols = src.cols;
     int r, c;
-    for (r = 0; r < rows; r++) {
-        for (c = 0; c < src.cols; c++) {
+
+    for (c = 0; c < cols; c++) {
+        for (r = 0; r < src.rows; r++) {
             // 4-connected
-            if (r - 1 > 0 && (srcVec(r, c) * srcVec(r - 1, c) > 1)) {
-                UF.merge(r * rows + c, (r - 1) * rows + c); // upper point
+            if (r - 1 > 0 && srcVec(r, c) > 0 && srcVec(r - 1, c) > 0) {
+                UF.merge(r + c * cols, (r - 1) + c * cols); // upper point
             }
-            if (c - 1 > 0 && (srcVec(r, c) * srcVec(r, c - 1) > 1)) {
-                UF.merge(r * rows + c, r * rows + c - 1); // left point
+            if (c - 1 > 0 && srcVec(r, c) > 0 && srcVec(r, c - 1) > 0) {
+                UF.merge(r + c * cols, r + (c - 1) * cols); // left point
             }
         }
     }
 
     // Record basic information of each region (area, position)
     map<int, vector<int>> position;
-    int root;
-    for (r = 0; r < rows; r++) {
+    for (r = 0; r < src.rows; r++) {
         for (c = 0; c < src.cols; c++) {
-            if (srcVec(r, c) == 0) {
-                continue; // exclude the background point
-            }
-            root = UF.find(r * rows + c);
-            auto search = area.find(root);
-            if (search != area.end()) {
-                // update the area, position
-                area[root] = area[root] + 1;
-                position[root][0] = std::min(position[root][0], r); // lowerest
-                position[root][1] = std::min(position[root][1], c); // leftmost
-                position[root][2] = std::max(position[root][2], r); // highest
-                position[root][3] = std::max(position[root][3], c); // rightmost
-            } else {
-                // add new item
-                area[root] = 1;
-                position[root] = {r, c, 0, 0};
+            if (srcVec(r, c) > 0) {
+                // continue; // exclude the background point
+
+                int root = UF.find(r + c * cols);
+                auto search = area.find(root);
+                if (search != area.end()) {
+                    // update the area, position
+                    area[root] += 1;
+                    position[root][0] = std::min(position[root][0], r); // lowerest
+                    position[root][1] = std::min(position[root][1], c); // leftmost
+                    position[root][2] = std::max(position[root][2], r); // highest
+                    position[root][3] = std::max(position[root][3], c); // rightmost
+                } else {
+                    // add new item
+                    area[root] = 1;
+                    position[root] = {r, c, r, c};
+                }
             }
         }
     }
@@ -253,7 +254,7 @@ int regionSegment(Mat &src, vector<vector<int>> &regions, int N) {
     // Find the first N largest regions
     priority_queue<int, vector<int>, Comparator> minHeap;
     for (auto region : area) {
-        if (region.second > 10) { // exclude spot
+        if (region.second > 1000) { // exclude spot
             // Add new item to min-Heap
             minHeap.push(region.first);
             if (minHeap.size() > N) {
@@ -267,6 +268,7 @@ int regionSegment(Mat &src, vector<vector<int>> &regions, int N) {
     while (!minHeap.empty()) {
         int top = minHeap.top();
         regions.push_back(position[top]); // regions are sorted in increasing order of area
+        // cout << position[top][0] << " " << position[top][1] << " " << position[top][2] << " " << position[top][3] << endl;
         minHeap.pop();
     }
 
