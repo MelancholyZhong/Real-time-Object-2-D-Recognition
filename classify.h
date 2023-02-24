@@ -17,7 +17,7 @@ using namespace cv;
 
 
 // Display the label of one region 
-int displayLabel(Mat &src, vector<int> region, char* label);
+int displayLabel(Mat &src, vector<int> region, char* label, bool isWhite = false);
 
 
 

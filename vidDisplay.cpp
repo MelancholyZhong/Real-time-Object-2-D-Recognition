@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
 
     // mode settings
     int mode = 1;               // 0 for only threshold and cleaning mode and 1 for recognition
-    int threshold = 150;        // initial threshold
+    int threshold = 55;        // initial threshold
     std::vector<char *> labels; // load the database (will re-load if any change)
     std::vector<std::vector<float>> data;
 
@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
             }
             
             vector<vector<int>> regions = {};
-            regionSegment(res2, regions, 2);
+            regionSegment(res2, regions, 1);
             for (int i = 0; i < regions.size(); i++) {
                 // cout << "(" << regions[i][0] << "," << regions[i][1] << "," << regions[i][2] << "," << regions[i][3] << ")" << endl;
 
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
                 char text[256] = {};
                 sprintf(text, "%s - %.6f", label, moment);
                 // cout << "text: " << text <<endl;
-                displayLabel(res2, regions[i], text);
+                displayLabel(res2, regions[i], text, true);
             }
             
             // cv::waitKey(1000); //dont want too much
