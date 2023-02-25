@@ -4,6 +4,10 @@ The objective of the project is to develop an object recognition system capable 
 
 If encounter any problems, please feel free to contact us via email hu.hui1@northeastern.edu or zhong.yao@northeastern.edu
 
+## Travel time
+
+Use 1 day of travel time
+
 ## Environment
 
 MacOS M1 chip
@@ -18,17 +22,23 @@ Build with Makefile
 
 - link to github: https://github.com/MelancholyZhong/Real-time-Object-2-D-Recognition
 
+- link to demo video: https://youtu.be/O6WMgxuzKnc
+
 ## How to run the code
 
 In the treminal
 
-1. Enter command `make vidDisplay && ./vidDisplay` to compile cpp files
+1. Enter command `make vidDisplay` to compile cpp files
 
-2. Keypress Instruction:
+2. Then `./vidDisplay` to run the excutable
 
-    - `q`: exit the program
-    - `a`: modify thresholded value (in an new window), use `s` to save modification
-    - `m`: switch mode (thresholded video or colorful video)
-    - `t`: 
-    - `s`: save image and corresponding feature (enter label throught terminal)
+3. Keypress Instructions:
 
+   - `q`: exit the program
+   - `a`: modify thresholded value (in an new window), use `a` to save modification and quit the new window
+   - `r`: start or stop recognization
+   - `t`: save the training data, after pressing this, the video is paused, you should in put the label in the terminal and after input label, the feature is saved and video is resumed.
+   - `m` set the classifier to "nearest neighbor"
+   - `n` set the classifier to "3-nearest-neighbor"
+   - `s`: save images for the report(used when developing)
+   - `l`: only to save the recognied image(used when developing)

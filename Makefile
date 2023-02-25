@@ -9,6 +9,7 @@ LIBS = $(OPENCV)
 
 vidDisplay : vidDisplay.cpp filters.cpp csv_util.cpp match.cpp fetchFeature.cpp
 	$(CC) $(CFLAGS) $(CAM_PLIST_FLAG) -o $@ $^ $(LIBS) 
+
 test : main.cpp fetchFeature.cpp
 	$(CC) $(CFLAGS) $(CAM_PLIST_FLAG) -o $@ $^ $(LIBS) 
 

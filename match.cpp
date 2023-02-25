@@ -1,3 +1,10 @@
+/**
+    Real-time Object 2-D Recognition
+    Created by Yao Zhong for CS 5330 Computer Vision Spring 2023
+
+    Functions related to distances and classifiers.
+*/
+
 #include <iostream>
 #include <cmath>
 #include <filesystem>
@@ -9,7 +16,7 @@
 
 #include "match.h"
 
-
+//Calculate the scaled Euclidean Distance of two features: |x1-x2|/st_dev
 float scaledEuclideanDis(std::vector<float> &feature1, std::vector<float> &feature2, std::vector<float> &deviations){
     float distance = 0.0;
     for(int i=0; i<feature1.size(); i++){
@@ -18,6 +25,7 @@ float scaledEuclideanDis(std::vector<float> &feature1, std::vector<float> &featu
     return distance;
 }
 
+//Calculate the standard deveation for each entry of the features in the database(for sacle), the result is not square rooted until next function.
 int standardDeviation(std::vector<std::vector<float>> &data, std::vector<float> &deviations){
     std::vector<float> sums = std::vector<float>(data[0].size(), 0.0); //sum of each entry
     std::vector<float> avgs = std::vector<float>(data[0].size(), 0.0); //average of each entry
@@ -52,6 +60,7 @@ int standardDeviation(std::vector<std::vector<float>> &data, std::vector<float> 
 }
 
 
+//Classifier 1: nearest neighbor
 int nearestNeighbor(std::vector<char *> &labels, std::vector<std::vector<float>> &data, std::vector<float> &feature, char* label){
     std::vector<float> deviations;
     standardDeviation(data,deviations);
@@ -66,10 +75,11 @@ int nearestNeighbor(std::vector<char *> &labels, std::vector<std::vector<float>>
     return 0;
 }
 
-
+//Classifier 2: 3-nearest neigbor.(this classifier requires at least 3 examples of that object)
 int nearest3(std::vector<char *> &labels, std::vector<std::vector<float>> &data, std::vector<float> &feature, char* label){
     std::vector<float> deviations;
     standardDeviation(data,deviations);
+    //calcuted distances and store by label
     std::unordered_map<std::string, std::vector<float>> map;
     for(int i=0; i<data.size(); i++){
         float dis = scaledEuclideanDis(feature, data[i], deviations);
@@ -85,7 +95,7 @@ int nearest3(std::vector<char *> &labels, std::vector<std::vector<float>> &data,
         }
     }
 
-
+    //get each label's  top 3 and then get the best match label
     float minDis = -1;
     //https://stackoverflow.com/questions/26281979/c-loop-through-map
     for(auto const& x: map){

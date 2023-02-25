@@ -1,3 +1,11 @@
+/**
+    Real-time Object 2-D Recognition
+    Created by Yao Zhong  and Hu Hui for CS 5330 Computer Vision Spring 2023
+
+    Functions related to distances and classifiers.
+*/
+
+
 #include <filesystem>
 #include <iostream>
 #include <string>
@@ -20,7 +28,6 @@ int main(int argc, char *argv[]) {
         printf("Unable to open video device\n");
         return (-1);
     }
-
     cv::namedWindow("Video", 1); // identifies a window
 
     // image saving settings
@@ -32,8 +39,13 @@ int main(int argc, char *argv[]) {
     int mode = 0;               // 0 for only threshold and cleaning mode and 1 for recognition
     int classifier = 0; //0 for nearest 3 neighbor, 1 for nearest neigbor
     int threshold = 150;        // initial threshold
+    int capacity = 2;  //recognize at most 2 objects at the same time
+
+    //data preloading
     std::vector<char *> labels; // load the database (will re-load if any change)
     std::vector<std::vector<float>> data;
+
+    //main loop
     for (;;) {
         cv::Mat frame;
         *capdev >> frame; // get a new frame from the camera, treat as a stream
@@ -41,20 +53,25 @@ int main(int argc, char *argv[]) {
             printf("frame is empty\n");
             break;
         }
+
+        //preprocessing
         cv::Mat res1; // result of thresholding
         cv::Mat res2; // result of closing
         cv::Mat res3; // used to be bounded and labeled
+        cv::Mat regionMap;
         thresholding(frame, res1, threshold);
         closing(res1, res2);
         res3 = res2.clone();
-        // cv::imshow("Video", frame);
+        vector<vector<int>> regions = {};
+        regionSegment(res2, regions, regionMap, capacity);
+
+
+        //Start recognize if mode is 1
         if (mode == 1) {
             if (labels.size() == 0) {
                 read_image_data_csv(dirName, labels, data);
             }
             
-            vector<vector<int>> regions = {};
-            regionSegment(res2, regions, 2);
             for (int i = 0; i < regions.size(); i++) {
                 // cout << "(" << regions[i][0] << "," << regions[i][1] << "," << regions[i][2] << "," << regions[i][3] << ")" << endl;
 
@@ -67,13 +84,11 @@ int main(int argc, char *argv[]) {
                     nearestNeighbor(labels, data, feature, label);
                 }
                 
-
                 char text[256] = {};
-                sprintf(text, "%s - %.6f", label, moment);
+                std::snprintf(text, sizeof(text), "%s - %.6f", label, moment);
                 displayLabel(res3, regions[i], text, true);
             }
             
-            // cv::waitKey(1000); //dont want too much
         }
         cv::imshow("Video", res3);
 
@@ -82,36 +97,42 @@ int main(int argc, char *argv[]) {
         if (key == 'q') {
             break;
         } else if (key == 's') {
+            //save the images for the report
             captured += 1;
             std::string capturedStr = std::to_string(captured);
             std::string fileName1 = "./captured/original_" + capturedStr + ".jpg";
             std::string fileName2 = "./captured/thresholding_" + capturedStr + ".jpg";
             std::string fileName3 = "./captured/closed_" + capturedStr + ".jpg";
             std::string fileName4 = "./captured/oriented_" + capturedStr + ".jpg";
+            std::string fileName5 = "./captured/segmented_" + capturedStr + ".jpg";
             cv::imwrite(fileName1, frame);
             cv::imwrite(fileName2, res1);
             cv::imwrite(fileName3, res2);
             cv::imwrite(fileName4, res3);
+            cv::imwrite(fileName5, regionMap);
         } else if (key == 'r') {
+            //change the mode of recognizing
             mode == 0 ? mode = 1 : mode = 0;
         } else if (key == 'a') {
+            //adjust threshold
             int newThreshold = adjustThreshold(frame, threshold);
             threshold = newThreshold;
-            // std::cout << threshold << std::endl;
         } else if (key == 't') {
+            //save the new object
             std::vector<float> feature;
-            vector<vector<int>> regions = {};
-            regionSegment(res2, regions, 1);
             getFeatureVec(res2, feature, regions[0]);
             saveNewObject(frame, res2, feature, dirName);
             labels.clear();
             data.clear();
             read_image_data_csv(dirName, labels, data);
         }else if(key == 'n'){
+            //set the classifier to knn
             classifier = 0;
         }else if(key == 'm'){
+            //set the classifier to nearest neighbor
             classifier = 1;
         }else if(key == 'l'){
+            //save the recognized image only
             captured += 1;
             std::string capturedStr = std::to_string(captured);
             std::string fileName = "./captured/classified_" + capturedStr + ".jpg";

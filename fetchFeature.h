@@ -19,7 +19,7 @@ using namespace cv;
 int threshold(Mat &src, Mat &des);
 
 // Segment the image into regions and return the locations of each region
-int regionSegment(Mat &src, vector<vector<int>> &regions, int N=1);
+int regionSegment(Mat &src, vector<vector<int>> &regions, Mat &regionMap, int N=1);
 
 // Compute features for each major region
 float getFeatureVec(Mat &src, vector<float> &feature, vector<int> region);

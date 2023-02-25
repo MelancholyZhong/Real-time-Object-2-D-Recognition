@@ -1,3 +1,10 @@
+/**
+    Real-time Object 2-D Recognition
+    Created by Yao Zhong for CS 5330 Computer Vision Spring 2023
+
+    Functions to preprocessing the image, including adjust threshold using trackbar.
+*/
+
 #include <iostream>
 #include <cmath>
 #include <filesystem>
@@ -53,9 +60,10 @@ int blur5x5( cv::Mat &src, cv::Mat &dst ){
     return 0;
 }
 
+//To threshold the image into a binary image
 int thresholding( cv::Mat &src, cv::Mat &dst, int threshold){
     cv::Mat blured;
-    blur5x5(src, blured);
+    blur5x5(src, blured); // blur the image before thresholding
     cv::Mat intermediate =  cv::Mat::zeros(src.size(), CV_8UC1);
     for(int i=0; i<src.rows; i++){
         uchar *irptr = intermediate.ptr<uchar>(i);
@@ -72,6 +80,7 @@ int thresholding( cv::Mat &src, cv::Mat &dst, int threshold){
     return 0;
 }
 
+//Task2: used opencv functions to do the closing operation(2 times of dilate followed by 2 times of erode)
 int closing(cv::Mat &src, cv::Mat &dst){
     int size = 1;
     cv::Mat element = getStructuringElement(cv::MORPH_RECT, cv::Size( 2*size + 1, 2*size+1 ), cv::Point( size, size ) );
@@ -82,6 +91,7 @@ int closing(cv::Mat &src, cv::Mat &dst){
     return 0;
 }
 
+// call-back function for trackbar
 static void on_trackbar( int threshold_slider, void* userData){
     cv::Mat frame = *(static_cast<cv::Mat*>(userData));
     cv::Mat res1;
@@ -89,6 +99,7 @@ static void on_trackbar( int threshold_slider, void* userData){
     imshow( "Adjust Threshold", res1);
 }
 
+//Allow users to adjust the threshold through this window with a trackbar, the new threshold will be returned 
 int adjustThreshold(cv::Mat &frame, int threshold){
 
     cv::namedWindow("Adjust Threshold", 1); // identifies a window
@@ -107,10 +118,9 @@ int adjustThreshold(cv::Mat &frame, int threshold){
     return threshold_slider;
 }
 
-int saveNewObject(cv::Mat &frame, cv::Mat &res, std::vector<float> &feature, char* dirName){
-    //image saving settings
-    std::__fs::filesystem::create_directory("./dbImages");
 
+//helper funtion to ask for a label and record the feature into csv
+int saveNewObject(cv::Mat &frame, cv::Mat &res, std::vector<float> &feature, char* dirName){
 
     char label[256];
     std::cout << "intput a label for this object:" << std::endl;

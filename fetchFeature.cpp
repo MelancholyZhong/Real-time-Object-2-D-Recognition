@@ -202,10 +202,11 @@ class Comparator {
 };
 
 // Segment the image into regions and return the locations of each region
-int regionSegment(Mat &src, vector<vector<int>> &regions, int N) {
+int regionSegment(Mat &src, vector<vector<int>> &regions, Mat &regionMap, int N) {
     area = {};
     Mat_<uchar> srcVec = src;
     UnionFind UF = UnionFind(src.cols * src.cols);
+    regionMap = cv::Mat::zeros(src.size(), CV_8UC3);
 
     // Segment the image into regions
     int cols = src.cols;
@@ -224,13 +225,19 @@ int regionSegment(Mat &src, vector<vector<int>> &regions, int N) {
     }
 
     // Record basic information of each region (area, position)
+    uchar colors[6][3] = {{255,0,0},{0,255,0},{0,0,255},{0,255,255},{255,0,255},{255,255,0}};
     map<int, vector<int>> position;
     for (r = 0; r < src.rows; r++) {
+        cv::Vec3b *rptr = regionMap.ptr<cv::Vec3b>(r);
         for (c = 0; c < src.cols; c++) {
             if (srcVec(r, c) > 0) {
                 // continue; // exclude the background point
 
                 int root = UF.find(r + c * cols);
+                int color = root%6;
+                rptr[c][0] = colors[color][0];
+                rptr[c][1] = colors[color][1];
+                rptr[c][2] = colors[color][2];
                 auto search = area.find(root);
                 if (search != area.end()) {
                     // update the area, position
@@ -272,7 +279,7 @@ int regionSegment(Mat &src, vector<vector<int>> &regions, int N) {
     //region map
   
     // std::cout<<"called"<<std::endl;
-    // int colors[6][3] = {{255,0,0},{0,255,0},{0,0,255},{0,255,255},{255,0,255},{255,255,0}};
+    // uchar colors[6][3] = {{255,0,0},{0,255,0},{0,0,255},{0,255,255},{255,0,255},{255,255,0}};
     // res3 = cv::Mat::zeros(src.size(), CV_8UC3);
     // for (r = 0; r < src.rows; r++) {
     //     cv::Vec3b *rptr = res3.ptr<cv::Vec3b>(r);
