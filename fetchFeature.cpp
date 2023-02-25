@@ -272,6 +272,26 @@ int regionSegment(Mat &src, vector<vector<int>> &regions, int N) {
         minHeap.pop();
     }
 
+    //region map
+  
+    // std::cout<<"called"<<std::endl;
+    // int colors[6][3] = {{255,0,0},{0,255,0},{0,0,255},{0,255,255},{255,0,255},{255,255,0}};
+    // res3 = cv::Mat::zeros(src.size(), CV_8UC3);
+    // for (r = 0; r < src.rows; r++) {
+    //     cv::Vec3b *rptr = res3.ptr<cv::Vec3b>(r);
+    //     for (c = 0; c < src.cols; c++) {
+    //         if (srcVec(r, c) > 0) {
+    //             int root = UF.find(r + c * cols);
+    //             if(area[root]>1000){
+    //                 int color = root%6;
+    //                 rptr[c][0] = colors[color][0];
+    //                 rptr[c][1] = colors[color][1];
+    //                 rptr[c][2] = colors[color][2];
+    //             }
+    //         }
+    //     }
+    // }
+
     return 0;
 }
 

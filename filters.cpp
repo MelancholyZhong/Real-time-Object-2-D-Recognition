@@ -100,7 +100,7 @@ int adjustThreshold(cv::Mat &frame, int threshold){
     cv::createTrackbar( TrackbarName, "Adjust Threshold", &threshold_slider, threshold_slider_max, on_trackbar, &frame);
     on_trackbar(threshold_slider, &frame);
     char key = cv::waitKey(0);
-    while(key != 's'){
+    while(key != 'a'){
         key = cv::waitKey(0);
     }
     cv::destroyWindow("Adjust Threshold");
@@ -110,6 +110,7 @@ int adjustThreshold(cv::Mat &frame, int threshold){
 int saveNewObject(cv::Mat &frame, cv::Mat &res, std::vector<float> &feature, char* dirName){
     //image saving settings
     std::__fs::filesystem::create_directory("./dbImages");
+
 
     char label[256];
     std::cout << "intput a label for this object:" << std::endl;
