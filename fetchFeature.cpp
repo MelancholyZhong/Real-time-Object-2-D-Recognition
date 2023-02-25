@@ -8,7 +8,7 @@
 // basic
 #include <map>
 #include <math.h> // atan2
-#include <queue> // min heap
+#include <queue>  // min heap
 #include <string>
 #include <vector>
 // opencv
@@ -280,10 +280,30 @@ float getFeatureVec(Mat &src, vector<float> &feature, vector<int> region) {
     // Extract the region
     Mat crop = src(Range(region[0], region[2]), Range(region[1], region[3]));
 
+    vector<vector<Point>> contours;
+    findContours(crop, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(region[1], region[0]));
+    if (contours.size() > 0) {
+        RotatedRect minRect = minAreaRect(contours[0]);
+        Point2f rect_points[4];
+        minRect.points(rect_points);
+        // cout << rect_points[0] << "," << rect_points[1] << "," << rect_points[2] << "," << rect_points[3] << endl;
+        for (int j = 0; j < 4; j++) {
+            line(src, rect_points[j], rect_points[(j + 1) % 4], Scalar(255), 3, LINE_AA);
+        }
+    }
+
     // Compute moments of the region
     Moments momentValue = moments(crop,true);
     double hu[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     HuMoments(momentValue, hu);
+
+    double centroid_x = int(momentValue.m10 / momentValue.m00);
+    double centroid_y = int(momentValue.m01 / momentValue.m00);
+    double mu11 = momentValue.mu11 / momentValue.m00;
+    double mu20 = momentValue.mu20 / momentValue.m00;
+    double mu02 = momentValue.mu02 / momentValue.m00;
+    double theta = 0.5 * atan2(2 * mu11, (mu20 - mu02));
+    line(src, Point(int(centroid_x - cos(theta) * 500) + region[1], int(centroid_y - sin(theta) * 500) + region[0]), Point(int(centroid_x + cos(theta) * 500) + region[1], int(centroid_y + sin(theta) * 500) + region[0]), Scalar(128), 3, LINE_AA);
 
     // Log scale hu moments to male its value bigger
     for (int i = 0; i < 7; i++) {
