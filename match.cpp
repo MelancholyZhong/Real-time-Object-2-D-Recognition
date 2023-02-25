@@ -13,7 +13,7 @@
 float scaledEuclideanDis(std::vector<float> &feature1, std::vector<float> &feature2, std::vector<float> &deviations){
     float distance = 0.0;
     for(int i=0; i<feature1.size(); i++){
-        distance += (feature1[i] - feature2[i])*(feature1[i] - feature2[i])/deviations[i];
+        distance += std::sqrt((feature1[i] - feature2[i])*(feature1[i] - feature2[i])/deviations[i]);//here is the square root
     }
     return distance;
 }
@@ -22,7 +22,7 @@ int standardDeviation(std::vector<std::vector<float>> &data, std::vector<float> 
     std::vector<float> sums = std::vector<float>(data[0].size(), 0.0); //sum of each entry
     std::vector<float> avgs = std::vector<float>(data[0].size(), 0.0); //average of each entry
     std::vector<float> sumSqure = std::vector<float>(data[0].size(), 0.0); //sum of suqared difference between x_i and x_avg
-    deviations = std::vector<float>(data[0].size(), 0.0); //final result
+    deviations = std::vector<float>(data[0].size(), 0.0); //final result(deviations not square rooted yet)
 
     //first loop for the sum of each entry
     for(int i=0; i<data.size(); i++){
@@ -45,7 +45,7 @@ int standardDeviation(std::vector<std::vector<float>> &data, std::vector<float> 
 
     //the deviations
     for(int i=0; i<sumSqure.size(); i++){
-        deviations[i] = std::sqrt(sumSqure[i]/(data.size()-1)); 
+        deviations[i] = sumSqure[i]/(data.size()-1); 
     }
 
     return 0;

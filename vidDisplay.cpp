@@ -29,11 +29,10 @@ int main(int argc, char *argv[]) {
     int captured = 0;
 
     // mode settings
-    int mode = 1;               // 0 for only threshold and cleaning mode and 1 for recognition
-    int threshold = 55;        // initial threshold
+    int mode = 0;               // 0 for only threshold and cleaning mode and 1 for recognition
+    int threshold = 150;        // initial threshold
     std::vector<char *> labels; // load the database (will re-load if any change)
     std::vector<std::vector<float>> data;
-
     for (;;) {
         cv::Mat frame;
         *capdev >> frame; // get a new frame from the camera, treat as a stream
@@ -41,7 +40,6 @@ int main(int argc, char *argv[]) {
             printf("frame is empty\n");
             break;
         }
-
         cv::Mat res1;
         cv::Mat res2;
         thresholding(frame, res1, threshold);
@@ -92,8 +90,9 @@ int main(int argc, char *argv[]) {
             // std::cout << threshold << std::endl;
         } else if (key == 't') {
             std::vector<float> feature;
-            vector<int> region = {0, 0, res2.rows, res2.cols};
-            getFeatureVec(res2, feature, region);
+            vector<vector<int>> regions = {};
+            regionSegment(res2, regions, 1);
+            getFeatureVec(res2, feature, regions[0]);
             saveNewObject(frame, res2, feature, dirName);
             labels.clear();
             data.clear();
