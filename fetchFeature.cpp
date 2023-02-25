@@ -281,7 +281,7 @@ float getFeatureVec(Mat &src, vector<float> &feature, vector<int> region) {
     Mat crop = src(Range(region[0], region[2]), Range(region[1], region[3]));
 
     // Compute moments of the region
-    Moments momentValue = moments(crop);
+    Moments momentValue = moments(crop,true);
     double hu[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     HuMoments(momentValue, hu);
 
