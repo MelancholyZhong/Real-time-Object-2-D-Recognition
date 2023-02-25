@@ -142,9 +142,6 @@ int threshold(Mat &src, Mat &dst) {
     return 0;
 }
 
-// Clean up your thresholded image using morphological filtering
-// int cleanup(Mat &src, Mat &des);
-
 // Union Find (Disjoint Set) Data Structure
 class UnionFind {
     int *root, *rank;
@@ -293,7 +290,7 @@ float getFeatureVec(Mat &src, vector<float> &feature, vector<int> region) {
     }
 
     // Compute moments of the region
-    Moments momentValue = moments(crop,true);
+    Moments momentValue = moments(crop, true);
     double hu[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     HuMoments(momentValue, hu);
 
@@ -318,8 +315,6 @@ float getFeatureVec(Mat &src, vector<float> &feature, vector<int> region) {
     return feature[0]; // return the first value to display
 }
 
-// Save training data into (image) folder and (feature) CSV files
-int saveData(Mat &src, vector<float> &feature, char *name);
 
 // Display the label of one region
 int displayLabel(Mat &src, vector<int> region, char *label, bool isWhite) {
